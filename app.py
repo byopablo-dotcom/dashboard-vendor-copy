@@ -80,7 +80,7 @@ filter_customer = st.sidebar.multiselect("Nama Customer", options=all_customers,
 filter_status = st.sidebar.selectbox("Status Pembayaran", options=["Semua", "Lunas", "Belum Terbayar"], index=2)
 
 filter_pembayaran = st.sidebar.selectbox(
-    "Filter Pembayaran di (Kolom K)",
+    "Status Pembayaran di",
     options=["Semua", "KANTOR PUSAT", "KANWIL"],
     index=0
 )
