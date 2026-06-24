@@ -80,7 +80,7 @@ filter_customer = st.sidebar.multiselect("Nama Customer", options=all_customers,
 filter_status = st.sidebar.selectbox("Status Pembayaran", options=["Semua", "Lunas", "Belum Terbayar"], index=2)
 
 filter_pembayaran = st.sidebar.selectbox(
-    "Status Pembayaran di",
+    "Filter Pembayaran di (Kolom K)",
     options=["Semua", "KANTOR PUSAT", "KANWIL"],
     index=0
 )
@@ -200,7 +200,7 @@ st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
 
-# ===== KOLOM KIRI: TOP 5 VENDOR TANGGAL TERLAMA =====
+# ===== KOLOM KIRI: TOP 5 VENDOR DENGAN TANGGAL TERLAMA =====
 with col_kiri:
     st.markdown("### 🕰️ Top 5 Vendor dengan Tanggal Terlama")
     
@@ -209,6 +209,7 @@ with col_kiri:
     if not top5_terlama.empty:
         for idx, row in top5_terlama.iterrows():
             tanggal = row["Diterima Kantor Pusat/Kanwil"] if pd.notna(row["Diterima Kantor Pusat/Kanwil"]) else "-"
+            pembayaran_di = row["Pembayaran di"] if pd.notna(row["Pembayaran di"]) else "-"
             st.markdown(f"""
             <div style="
                 background: #f0f2f6;
@@ -219,6 +220,7 @@ with col_kiri:
             ">
                 <b>{row['Pelanggan']}</b><br>
                 📅 {tanggal}<br>
+                📍 {pembayaran_di}<br>
                 💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
             </div>
             """, unsafe_allow_html=True)
@@ -227,7 +229,7 @@ with col_kiri:
 
 # ===== KOLOM KANAN: FILTER PEMBAYARAN =====
 with col_kanan:
-    st.markdown("### 📍 Status Pembayaran di")
+    st.markdown("### 📍 Filter Pembayaran di (Kolom K)")
     
     if filter_pembayaran == "Semua":
         st.info("Pilih filter KANTOR PUSAT atau KANWIL di sidebar")
