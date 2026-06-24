@@ -46,7 +46,7 @@ df.columns = [
     "Deskripsi Pekerjaan",
     "Segment ",
     "Nilai Invoice",
-    "Pembayaran di",
+    "Pembayaran di",        # ← KOLOM K (filter KANTOR PUSAT/KANWIL)
     "Diterima Kantor Pusat/Kanwil",
     "Total Pembayaran",
     "Sisa Terbayar",
@@ -71,7 +71,7 @@ def get_status(row):
 df['Nilai_Invoice_Bersih'] = df["Nilai Invoice"].apply(clean_rupiah)
 df['Keterangan'] = df.apply(get_status, axis=1)
 
-# ========== FILTER ==========
+# ========== FILTER DI SIDEBAR ==========
 st.sidebar.header("🎯 Filter Data")
 
 all_customers = df["Pelanggan"].dropna().unique()
@@ -79,14 +79,30 @@ filter_customer = st.sidebar.multiselect("Nama Customer", options=all_customers,
 
 filter_status = st.sidebar.selectbox("Status Pembayaran", options=["Semua", "Lunas", "Belum Terbayar"], index=2)
 
+# ========== FILTER KOLOM K (Pembayaran di) ==========
+filter_pembayaran = st.sidebar.selectbox(
+    "Filter Pembayaran di (Kolom K)",
+    options=["Semua", "KANTOR PUSAT", "KANWIL"],
+    index=0
+)
+
 # ========== TERAPKAN FILTER ==========
 df_filter = df.copy()
+
 if filter_customer:
     df_filter = df_filter[df_filter["Pelanggan"].isin(filter_customer)]
+
 if filter_status == "Lunas":
     df_filter = df_filter[df_filter['Keterangan'] == "Lunas"]
 elif filter_status == "Belum Terbayar":
     df_filter = df_filter[df_filter['Keterangan'] == "Belum Terbayar"]
+
+if filter_pembayaran != "Semua":
+    df_filter = df_filter[df_filter["Pembayaran di"] == filter_pembayaran]
+
+# ========== SORTIR TANGGAL UNTUK TOP 5 TERLAMA ==========
+df_filter["Tanggal_Parse"] = pd.to_datetime(df_filter["Diterima Kantor Pusat/Kanwil"], errors='coerce')
+df_sorted = df_filter.sort_values(by="Tanggal_Parse", ascending=True)  # Terlama di atas
 
 # ========== METRIK ==========
 total_nilai = df_filter['Nilai_Invoice_Bersih'].sum()
@@ -118,22 +134,69 @@ with col3:
 
 st.markdown("---")
 
-# ========== TABEL ==========
+# ========== LIST KANAN-KIRI ==========
 st.subheader("📋 Daftar Tagihan")
-kolom_tampil = [
-    "No IO",
-    "Pelanggan",
-    "Nama Project",
-    "Segment ",
-    "Nilai Invoice",
-    "Sisa Terbayar",
-    "Keterangan"
-]
-st.dataframe(df_filter[kolom_tampil], use_container_width=True)
 
-# Download CSV
-csv = df_filter[kolom_tampil].to_csv(index=False).encode('utf-8')
-st.download_button("📥 Download CSV", csv, "data_tagihan_ringkas.csv", "text/csv")
+col_kiri, col_kanan = st.columns(2)
+
+# ===== KOLOM KIRI: TOP 5 VENDOR DENGAN TANGGAL TERLAMA =====
+with col_kiri:
+    st.markdown("### 🕰️ Top 5 Vendor dengan Tanggal Terlama")
+    
+    # Ambil 5 data dengan tanggal paling lama (NaN diabaikan)
+    top5_terlama = df_sorted.dropna(subset=["Tanggal_Parse"]).head(5)
+    
+    if not top5_terlama.empty:
+        # Tampilkan dalam bentuk list yang rapi
+        for idx, row in top5_terlama.iterrows():
+            tanggal = row["Diterima Kantor Pusat/Kanwil"] if pd.notna(row["Diterima Kantor Pusat/Kanwil"]) else "-"
+            st.markdown(f"""
+            <div style="
+                background: #f0f2f6;
+                padding: 10px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                border-left: 4px solid #0033a0;
+            ">
+                <b>{row['Pelanggan']}</b><br>
+                📅 {tanggal}<br>
+                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("Tidak ada data dengan tanggal yang valid")
+
+# ===== KOLOM KANAN: LIST DENGAN FILTER PEMBAYARAN =====
+with col_kanan:
+    st.markdown("### 📍 Filter Pembayaran di (Kolom K)")
+    
+    # Tampilkan data sesuai filter_pembayaran yang dipilih
+    if filter_pembayaran == "Semua":
+        st.info("Pilih filter KANTOR PUSAT atau KANWIL di sidebar")
+        df_tampil = df_filter.head(10)
+    else:
+        st.success(f"Menampilkan data dengan Pembayaran di: **{filter_pembayaran}**")
+        df_tampil = df_filter.head(10)
+    
+    if not df_tampil.empty:
+        for idx, row in df_tampil.iterrows():
+            st.markdown(f"""
+            <div style="
+                background: #f0f2f6;
+                padding: 10px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                border-left: 4px solid #e87a00;
+            ">
+                <b>{row['Pelanggan']}</b><br>
+                📍 {row['Pembayaran di']}<br>
+                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.warning("Tidak ada data untuk filter ini")
+
+st.markdown("---")
 
 # ========== GRAFIK PIE ==========
 st.subheader("📊 Distribusi Status")
@@ -146,3 +209,4 @@ if not df_filter.empty:
     st.plotly_chart(fig_pie, use_container_width=True)
 
 st.caption(f"🕒 Update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+st.info("🔄 Klik tombol 'Refresh Data Sekarang' di sidebar untuk mengambil data terbaru dari Google Sheet")
