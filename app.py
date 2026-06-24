@@ -227,7 +227,7 @@ with col_kiri:
 
 # ===== KOLOM KANAN: FILTER PEMBAYARAN =====
 with col_kanan:
-    st.markdown("### 📍 Filter Pembayaran di (Kolom K)")
+    st.markdown("### 📍 Status Pembayaran di")
     
     if filter_pembayaran == "Semua":
         st.info("Pilih filter KANTOR PUSAT atau KANWIL di sidebar")
