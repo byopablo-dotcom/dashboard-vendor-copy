@@ -101,7 +101,6 @@ if filter_pembayaran != "Semua":
 
 # ========== SORTIR TANGGAL ==========
 df_filter["Tanggal_Parse"] = pd.to_datetime(df_filter["Diterima Kantor Pusat/Kanwil"], errors='coerce')
-df_sorted = df_filter.sort_values(by="Tanggal_Parse", ascending=True)
 
 # ========== METRIK ==========
 total_nilai = df_filter['Nilai_Invoice_Bersih'].sum()
@@ -204,7 +203,10 @@ col_kiri, col_kanan = st.columns(2)
 with col_kiri:
     st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama")
     
-    top5_terlama = df_sorted.dropna(subset=["Tanggal_Parse"]).head(5)
+    # Hanya data dengan tanggal yang valid
+    df_valid_tanggal = df_filter.dropna(subset=["Tanggal_Parse"])
+    df_sorted = df_valid_tanggal.sort_values(by="Tanggal_Parse", ascending=True)
+    top5_terlama = df_sorted.head(5)
     
     if not top5_terlama.empty:
         for idx, row in top5_terlama.iterrows():
