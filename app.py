@@ -120,9 +120,10 @@ belum_df = df_filter[df_filter['Keterangan'] == "Belum Terbayar"]
 belum_nilai = belum_df['Nilai_Invoice_Bersih'].sum()
 belum_jumlah = len(belum_df)
 
-# ========== CSS CARD ==========
+# ========== CSS ==========
 st.markdown("""
 <style>
+/* ===== CARD ===== */
 .card-total {
     background: linear-gradient(135deg, #0033a0 0%, #1a5bbf 50%, #4a8ce0 100%);
     padding: 20px;
@@ -173,9 +174,51 @@ st.markdown("""
     font-size: 14px;
     opacity: 0.85;
 }
-/* PERBAIKAN UNTUK LIST ITEM DI HP */
-div[data-testid="stMarkdownContainer"] div {
+
+/* ===== LIST ITEM ===== */
+.list-item {
+    background: #f0f2f6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
     color: #1a1a1a !important;
+    border-left: 4px solid #0033a0;
+}
+.list-item * {
+    color: #1a1a1a !important;
+}
+.list-item-orange {
+    background: #f0f2f6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    color: #1a1a1a !important;
+    border-left: 4px solid #e87a00;
+}
+.list-item-orange * {
+    color: #1a1a1a !important;
+}
+
+/* ===== TAMPILAN HP ===== */
+@media (max-width: 768px) {
+    .list-item {
+        background: #ffffff;
+        border: 1px solid #d0d0d0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        color: #1a1a1a !important;
+    }
+    .list-item * {
+        color: #1a1a1a !important;
+    }
+    .list-item-orange {
+        background: #ffffff;
+        border: 1px solid #d0d0d0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        color: #1a1a1a !important;
+    }
+    .list-item-orange * {
+        color: #1a1a1a !important;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -213,7 +256,7 @@ with col3:
 
 st.markdown("---")
 
-# ========== LIST KANAN-KIRI ==========
+# ========== LIST ==========
 st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
@@ -239,25 +282,18 @@ with col_kiri:
             pembayaran_di = row["Pembayaran di"] if pd.notna(row["Pembayaran di"]) else "-"
             top_internal = row["TOP Internal"] if pd.notna(row["TOP Internal"]) else "-"
             st.markdown(f"""
-            <div style="
-                background: #f0f2f6;
-                padding: 10px;
-                border-radius: 8px;
-                margin-bottom: 8px;
-                border-left: 4px solid #0033a0;
-                color: #1a1a1a !important;
-            ">
-                <b style="color: #1a1a1a !important;">{row['Pelanggan']}</b><br>
-                <span style="color: #1a1a1a !important;">📅 {tanggal}</span><br>
-                <span style="color: #1a1a1a !important;">📍 {pembayaran_di}</span><br>
-                <span style="color: #1a1a1a !important;">💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}</span><br>
-                <span style="color: #1a1a1a !important;">📌 {top_internal}</span>
+            <div class="list-item">
+                <b>{row['Pelanggan']}</b><br>
+                📅 {tanggal}<br>
+                📍 {pembayaran_di}<br>
+                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}<br>
+                📌 {top_internal}
             </div>
             """, unsafe_allow_html=True)
     else:
         st.info("Tidak ada data Belum Terbayar dengan tanggal yang valid")
 
-# ===== KOLOM KANAN: FILTER PEMBAYARAN =====
+# ===== KOLOM KANAN: PEMBAYARAN DI =====
 with col_kanan:
     st.markdown("### 📍 Pembayaran di")
     
@@ -271,17 +307,10 @@ with col_kanan:
     if not df_tampil.empty:
         for idx, row in df_tampil.iterrows():
             st.markdown(f"""
-            <div style="
-                background: #f0f2f6;
-                padding: 10px;
-                border-radius: 8px;
-                margin-bottom: 8px;
-                border-left: 4px solid #e87a00;
-                color: #1a1a1a !important;
-            ">
-                <b style="color: #1a1a1a !important;">{row['Pelanggan']}</b><br>
-                <span style="color: #1a1a1a !important;">📍 {row['Pembayaran di']}</span><br>
-                <span style="color: #1a1a1a !important;">💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}</span>
+            <div class="list-item-orange">
+                <b>{row['Pelanggan']}</b><br>
+                📍 {row['Pembayaran di']}<br>
+                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
             </div>
             """, unsafe_allow_html=True)
     else:
