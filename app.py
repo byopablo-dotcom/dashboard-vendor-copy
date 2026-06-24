@@ -200,9 +200,9 @@ st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
 
-# ===== KOLOM KIRI: TOP 5 VENDOR DENGAN TANGGAL TERLAMA =====
+# ===== KOLOM KIRI: 5 VENDOR DENGAN TANGGAL TERLAMA =====
 with col_kiri:
-    st.markdown("### 🕰️ Top 5 Vendor dengan Tanggal Terlama")
+    st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama")
     
     top5_terlama = df_sorted.dropna(subset=["Tanggal_Parse"]).head(5)
     
