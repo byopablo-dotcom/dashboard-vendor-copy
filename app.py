@@ -29,14 +29,15 @@ SHEET_URL = "https://docs.google.com/spreadsheets/d/1u6GjCRIb-m42zoZtRn24O0uJhT0
 @st.cache_data(ttl=0)
 def load_data():
     df = pd.read_csv(SHEET_URL, skiprows=2)
-    kolom_A_sampai_P = df.iloc[:, 0:16]
-    df = df.dropna(how='all', subset=kolom_A_sampai_P.columns)
+    kolom_A_sampai_Q = df.iloc[:, 0:17]  # Ambil A sampai Q (index 0-16)
+    df = df.dropna(how='all', subset=kolom_A_sampai_Q.columns)
     return df
 
 df = load_data()
 
-# ========== AMBIL KOLOM ==========
-kolom_yang_diambil = [0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
+# ========== AMBIL KOLOM A, E, F, G, H, J, K, L, M, N, O, P, Q ==========
+# Index: A=0, E=4, F=5, G=6, H=7, J=9, K=10, L=11, M=12, N=13, O=14, P=15, Q=16
+kolom_yang_diambil = [0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16]
 df = df.iloc[:, kolom_yang_diambil]
 
 df.columns = [
@@ -47,11 +48,12 @@ df.columns = [
     "Segment ",
     "Nilai Invoice",
     "Pembayaran di",
-    "Diterima Kantor Pusat/Kanwil",
+    "Diterima Kantor Pusat/Kanwil",  # KOLOM L
     "Total Pembayaran",
-    "Sisa Terbayar",        # KOLOM N
+    "Sisa Terbayar",                # KOLOM N
     "Keterangan Posisi",
-    "TOP Internal"
+    "TOP Internal",                 # KOLOM P
+    "Status_Q"                      # KOLOM Q (0 = Lunas, >0 = Belum Terbayar)
 ]
 
 # ========== FUNGSI ==========
@@ -62,12 +64,20 @@ def clean_rupiah(val):
     return float(cleaned) if cleaned else 0
 
 def get_status(row):
-    # STATUS DIBACA DARI KOLOM N ("Sisa Terbayar")
-    status_val = str(row["Sisa Terbayar"]).upper().strip()
-    if status_val == "LUNAS":
-        return "Lunas"
-    else:
-        return "Belum Terbayar"
+    # STATUS DARI KOLOM Q: 0 = Lunas, >0 = Belum Terbayar
+    try:
+        q_val = float(row["Status_Q"])
+        if q_val == 0:
+            return "Lunas"
+        else:
+            return "Belum Terbayar"
+    except:
+        # Jika gagal konversi, cek apakah isinya "LUNAS"
+        status_str = str(row["Status_Q"]).upper().strip()
+        if status_str == "LUNAS":
+            return "Lunas"
+        else:
+            return "Belum Terbayar"
 
 df['Nilai_Invoice_Bersih'] = df["Nilai Invoice"].apply(clean_rupiah)
 df['Keterangan'] = df.apply(get_status, axis=1)
@@ -200,12 +210,13 @@ st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
 
-# ===== KOLOM KIRI: 5 VENDOR DENGAN TANGGAL TERLAMA =====
+# ===== KOLOM KIRI: 5 VENDOR DENGAN TANGGAL TERLAMA (BELUM TERBAYAR) =====
 with col_kiri:
-    st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama")
+    st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama (Belum Terbayar)")
     
-    # Hanya data dengan tanggal yang valid
-    df_valid_tanggal = df_filter.dropna(subset=["Tanggal_Parse"])
+    # Ambil data dengan status Belum Terbayar dan tanggal valid
+    df_belum = df_filter[df_filter['Keterangan'] == "Belum Terbayar"]
+    df_valid_tanggal = df_belum.dropna(subset=["Tanggal_Parse"])
     df_sorted = df_valid_tanggal.sort_values(by="Tanggal_Parse", ascending=True)
     top5_terlama = df_sorted.head(5)
     
@@ -230,7 +241,7 @@ with col_kiri:
             </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("Tidak ada data dengan tanggal yang valid")
+        st.info("Tidak ada data Belum Terbayar dengan tanggal yang valid")
 
 # ===== KOLOM KANAN: FILTER PEMBAYARAN =====
 with col_kanan:
