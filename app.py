@@ -46,7 +46,7 @@ df.columns = [
     "Deskripsi Pekerjaan",
     "Segment ",
     "Nilai Invoice",
-    "Pembayaran di",        # ← KOLOM K (filter KANTOR PUSAT/KANWIL)
+    "Pembayaran di",
     "Diterima Kantor Pusat/Kanwil",
     "Total Pembayaran",
     "Sisa Terbayar",
@@ -79,7 +79,6 @@ filter_customer = st.sidebar.multiselect("Nama Customer", options=all_customers,
 
 filter_status = st.sidebar.selectbox("Status Pembayaran", options=["Semua", "Lunas", "Belum Terbayar"], index=2)
 
-# ========== FILTER KOLOM K (Pembayaran di) ==========
 filter_pembayaran = st.sidebar.selectbox(
     "Filter Pembayaran di (Kolom K)",
     options=["Semua", "KANTOR PUSAT", "KANWIL"],
@@ -100,9 +99,9 @@ elif filter_status == "Belum Terbayar":
 if filter_pembayaran != "Semua":
     df_filter = df_filter[df_filter["Pembayaran di"] == filter_pembayaran]
 
-# ========== SORTIR TANGGAL UNTUK TOP 5 TERLAMA ==========
+# ========== SORTIR TANGGAL ==========
 df_filter["Tanggal_Parse"] = pd.to_datetime(df_filter["Diterima Kantor Pusat/Kanwil"], errors='coerce')
-df_sorted = df_filter.sort_values(by="Tanggal_Parse", ascending=True)  # Terlama di atas
+df_sorted = df_filter.sort_values(by="Tanggal_Parse", ascending=True)
 
 # ========== METRIK ==========
 total_nilai = df_filter['Nilai_Invoice_Bersih'].sum()
@@ -116,21 +115,83 @@ belum_df = df_filter[df_filter['Keterangan'] == "Belum Terbayar"]
 belum_nilai = belum_df['Nilai_Invoice_Bersih'].sum()
 belum_jumlah = len(belum_df)
 
-# ========== CARD ==========
+# ========== CSS CARD WARNA LOGO ==========
+st.markdown("""
+<style>
+.card-total {
+    background: linear-gradient(135deg, #0033a0 0%, #1a5bbf 50%, #4a8ce0 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin: 10px 0;
+}
+.card-lunas {
+    background: linear-gradient(135deg, #e87a00 0%, #f5a623 50%, #f7c948 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin: 10px 0;
+}
+.card-belum {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 50%, #f1948a 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin: 10px 0;
+}
+.card-label {
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 500;
+}
+.card-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+.card-sub {
+    font-size: 14px;
+    opacity: 0.85;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ========== 3 CARD BERWARNA ==========
 st.subheader("📊 Ringkasan")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("💰 TOTAL", f"Rp {total_nilai:,.0f}")
-    st.caption(f"{total_jumlah} invoice")
+    st.markdown(f"""
+    <div class="card-total">
+        <div class="card-label">💰 TOTAL</div>
+        <div class="card-value">Rp {total_nilai:,.0f}</div>
+        <div class="card-sub">📄 {total_jumlah:,} invoice</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col2:
-    st.metric("✅ LUNAS", f"Rp {lunas_nilai:,.0f}")
-    st.caption(f"{lunas_jumlah} invoice")
+    st.markdown(f"""
+    <div class="card-lunas">
+        <div class="card-label">✅ LUNAS</div>
+        <div class="card-value">Rp {lunas_nilai:,.0f}</div>
+        <div class="card-sub">📄 {lunas_jumlah:,} invoice</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col3:
-    st.metric("⏳ BELUM", f"Rp {belum_nilai:,.0f}")
-    st.caption(f"{belum_jumlah} invoice")
+    st.markdown(f"""
+    <div class="card-belum">
+        <div class="card-label">⏳ BELUM</div>
+        <div class="card-value">Rp {belum_nilai:,.0f}</div>
+        <div class="card-sub">📄 {belum_jumlah:,} invoice</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -139,15 +200,13 @@ st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
 
-# ===== KOLOM KIRI: TOP 5 VENDOR DENGAN TANGGAL TERLAMA =====
+# ===== KOLOM KIRI: TOP 5 VENDOR TANGGAL TERLAMA =====
 with col_kiri:
     st.markdown("### 🕰️ Top 5 Vendor dengan Tanggal Terlama")
     
-    # Ambil 5 data dengan tanggal paling lama (NaN diabaikan)
     top5_terlama = df_sorted.dropna(subset=["Tanggal_Parse"]).head(5)
     
     if not top5_terlama.empty:
-        # Tampilkan dalam bentuk list yang rapi
         for idx, row in top5_terlama.iterrows():
             tanggal = row["Diterima Kantor Pusat/Kanwil"] if pd.notna(row["Diterima Kantor Pusat/Kanwil"]) else "-"
             st.markdown(f"""
@@ -166,11 +225,10 @@ with col_kiri:
     else:
         st.info("Tidak ada data dengan tanggal yang valid")
 
-# ===== KOLOM KANAN: LIST DENGAN FILTER PEMBAYARAN =====
+# ===== KOLOM KANAN: FILTER PEMBAYARAN =====
 with col_kanan:
     st.markdown("### 📍 Filter Pembayaran di (Kolom K)")
     
-    # Tampilkan data sesuai filter_pembayaran yang dipilih
     if filter_pembayaran == "Semua":
         st.info("Pilih filter KANTOR PUSAT atau KANWIL di sidebar")
         df_tampil = df_filter.head(10)
@@ -209,4 +267,4 @@ if not df_filter.empty:
     st.plotly_chart(fig_pie, use_container_width=True)
 
 st.caption(f"🕒 Update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-st.info("🔄 Klik tombol 'Refresh Data Sekarang' di sidebar untuk mengambil data terbaru dari Google Sheet")
+st.info("🔄 Refresh data di sidebar untuk mengambil data terbaru")
