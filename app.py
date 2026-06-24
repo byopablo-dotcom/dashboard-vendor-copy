@@ -47,9 +47,9 @@ df.columns = [
     "Segment ",
     "Nilai Invoice",
     "Pembayaran di",
-    "Diterima Kantor Pusat/Kanwil",  # KOLOM L
+    "Diterima Kantor Pusat/Kanwil",
     "Total Pembayaran",
-    "Sisa Terbayar",
+    "Sisa Terbayar",        # KOLOM N
     "Keterangan Posisi",
     "TOP Internal"
 ]
@@ -62,8 +62,8 @@ def clean_rupiah(val):
     return float(cleaned) if cleaned else 0
 
 def get_status(row):
-    # STATUS DIBACA DARI KOLOM L ("Diterima Kantor Pusat/Kanwil")
-    status_val = str(row["Diterima Kantor Pusat/Kanwil"]).upper().strip()
+    # STATUS DIBACA DARI KOLOM N ("Sisa Terbayar")
+    status_val = str(row["Sisa Terbayar"]).upper().strip()
     if status_val == "LUNAS":
         return "Lunas"
     else:
