@@ -14,7 +14,7 @@ LOGO_URL = "https://i.ibb.co.com/jvMsmG76/logo-blii.png"
 
 col_title, col_logo = st.columns([10, 1])
 with col_title:
-    st.title("📊 MONITORING PEMBAYARAN VENDOR (Ringkas)")
+    st.title("📊 MONITORING PEMBAYARAN VENDOR")
 with col_logo:
     try:
         response = requests.get(LOGO_URL)
@@ -229,7 +229,7 @@ with col_kiri:
 
 # ===== KOLOM KANAN: FILTER PEMBAYARAN =====
 with col_kanan:
-    st.markdown("### 📍 Filter Pembayaran di (Kolom K)")
+    st.markdown("### 📍 Pembayaran di")
     
     if filter_pembayaran == "Semua":
         st.info("Pilih filter KANTOR PUSAT atau KANWIL di sidebar")
