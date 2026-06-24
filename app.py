@@ -78,8 +78,6 @@ def get_status(row):
 
 df['Nilai_Invoice_Bersih'] = df["Nilai Invoice"].apply(clean_rupiah)
 df['Keterangan'] = df.apply(get_status, axis=1)
-
-# ========== KONVERSI TANGGAL ==========
 df["Tanggal_Parse"] = pd.to_datetime(df["Diterima Kantor Pusat/Kanwil"], errors='coerce')
 
 # ========== FILTER ==========
@@ -129,28 +127,37 @@ st.markdown("""
     background: linear-gradient(135deg, #0033a0 0%, #1a5bbf 50%, #4a8ce0 100%);
     padding: 20px;
     border-radius: 12px;
-    color: white;
+    color: white !important;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin: 10px 0;
+}
+.card-total * {
+    color: white !important;
 }
 .card-lunas {
     background: linear-gradient(135deg, #e87a00 0%, #f5a623 50%, #f7c948 100%);
     padding: 20px;
     border-radius: 12px;
-    color: white;
+    color: white !important;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin: 10px 0;
+}
+.card-lunas * {
+    color: white !important;
 }
 .card-belum {
     background: linear-gradient(135deg, #c0392b 0%, #e74c3c 50%, #f1948a 100%);
     padding: 20px;
     border-radius: 12px;
-    color: white;
+    color: white !important;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     margin: 10px 0;
+}
+.card-belum * {
+    color: white !important;
 }
 .card-label {
     font-size: 14px;
@@ -165,6 +172,10 @@ st.markdown("""
 .card-sub {
     font-size: 14px;
     opacity: 0.85;
+}
+/* PERBAIKAN UNTUK LIST ITEM DI HP */
+div[data-testid="stMarkdownContainer"] div {
+    color: #1a1a1a !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -212,10 +223,8 @@ with col_kiri:
     st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama (Belum Terbayar)")
     
     df_top5 = df.copy()
-    
     if filter_customer:
         df_top5 = df_top5[df_top5["Pelanggan"].isin(filter_customer)]
-    
     if filter_pembayaran != "Semua":
         df_top5 = df_top5[df_top5["Pembayaran di"] == filter_pembayaran]
     
@@ -236,12 +245,13 @@ with col_kiri:
                 border-radius: 8px;
                 margin-bottom: 8px;
                 border-left: 4px solid #0033a0;
+                color: #1a1a1a !important;
             ">
-                <b>{row['Pelanggan']}</b><br>
-                📅 {tanggal}<br>
-                📍 {pembayaran_di}<br>
-                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}<br>
-                📌 {top_internal}
+                <b style="color: #1a1a1a !important;">{row['Pelanggan']}</b><br>
+                <span style="color: #1a1a1a !important;">📅 {tanggal}</span><br>
+                <span style="color: #1a1a1a !important;">📍 {pembayaran_di}</span><br>
+                <span style="color: #1a1a1a !important;">💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}</span><br>
+                <span style="color: #1a1a1a !important;">📌 {top_internal}</span>
             </div>
             """, unsafe_allow_html=True)
     else:
@@ -267,10 +277,11 @@ with col_kanan:
                 border-radius: 8px;
                 margin-bottom: 8px;
                 border-left: 4px solid #e87a00;
+                color: #1a1a1a !important;
             ">
-                <b>{row['Pelanggan']}</b><br>
-                📍 {row['Pembayaran di']}<br>
-                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
+                <b style="color: #1a1a1a !important;">{row['Pelanggan']}</b><br>
+                <span style="color: #1a1a1a !important;">📍 {row['Pembayaran di']}</span><br>
+                <span style="color: #1a1a1a !important;">💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}</span>
             </div>
             """, unsafe_allow_html=True)
     else:
