@@ -46,7 +46,7 @@ df.columns = [
     "Deskripsi Pekerjaan",
     "Segment ",
     "Nilai Invoice",
-    "Pembayaran di",
+    "Pembayaran di",                # K
     "Diterima Kantor Pusat/Kanwil",  # L
     "Total Pembayaran",
     "Sisa Terbayar",                # N
@@ -93,7 +93,7 @@ filter_pembayaran = st.sidebar.selectbox(
     index=0
 )
 
-# ========== TERAPKAN FILTER ==========
+# ========== TERAPKAN FILTER UNTUK METRIK & TABEL ==========
 df_filter = df.copy()
 
 if filter_customer:
@@ -207,12 +207,23 @@ st.subheader("📋 Daftar Tagihan")
 
 col_kiri, col_kanan = st.columns(2)
 
-# ===== KOLOM KIRI: TOP 5 (Q > 0, TANGGAL L TERLAMA) =====
+# ===== KOLOM KIRI: TOP 5 (dari semua data, filter Customer + Pembayaran di) =====
 with col_kiri:
     st.markdown("### 🕰️ 5 Vendor dengan Tanggal Terlama (Belum Terbayar)")
     
-    # Ambil data dengan Q > 0 (Belum Terbayar) dan tanggal valid
-    df_belum = df_filter[df_filter['Keterangan'] == "Belum Terbayar"]
+    # Ambil dari df (data asli) tapi tetap terpengaruh filter Customer dan Pembayaran di
+    df_top5 = df.copy()
+    
+    # Terapkan filter Customer (jika ada)
+    if filter_customer:
+        df_top5 = df_top5[df_top5["Pelanggan"].isin(filter_customer)]
+    
+    # Terapkan filter Pembayaran di (jika ada)
+    if filter_pembayaran != "Semua":
+        df_top5 = df_top5[df_top5["Pembayaran di"] == filter_pembayaran]
+    
+    # Ambil data dengan Q > 0 (Belum Terbayar)
+    df_belum = df_top5[df_top5['Keterangan'] == "Belum Terbayar"]
     df_valid_tanggal = df_belum.dropna(subset=["Tanggal_Parse"])
     df_sorted = df_valid_tanggal.sort_values(by="Tanggal_Parse", ascending=True)
     top5_terlama = df_sorted.head(5)
