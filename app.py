@@ -210,6 +210,7 @@ with col_kiri:
         for idx, row in top5_terlama.iterrows():
             tanggal = row["Diterima Kantor Pusat/Kanwil"] if pd.notna(row["Diterima Kantor Pusat/Kanwil"]) else "-"
             pembayaran_di = row["Pembayaran di"] if pd.notna(row["Pembayaran di"]) else "-"
+            top_internal = row["TOP Internal"] if pd.notna(row["TOP Internal"]) else "-"
             st.markdown(f"""
             <div style="
                 background: #f0f2f6;
@@ -221,7 +222,8 @@ with col_kiri:
                 <b>{row['Pelanggan']}</b><br>
                 📅 {tanggal}<br>
                 📍 {pembayaran_di}<br>
-                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
+                💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}<br>
+                📌 {top_internal}
             </div>
             """, unsafe_allow_html=True)
     else:
