@@ -40,19 +40,19 @@ kolom_yang_diambil = [0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16]
 df = df.iloc[:, kolom_yang_diambil]
 
 df.columns = [
-    "No IO",
-    "Pelanggan",
-    "Nama Project",
-    "Deskripsi Pekerjaan",
-    "Segment ",
-    "Nilai Invoice",
-    "Pembayaran di",
-    "Diterima Kantor Pusat/Kanwil",
-    "Total Pembayaran",
-    "Sisa Terbayar",
-    "Keterangan Posisi",
-    "TOP Internal",
-    "Status_Q"
+    "No IO",                    # A
+    "Pelanggan",                # E
+    "Nama Project",             # F
+    "Deskripsi Pekerjaan",      # G
+    "Segment ",                 # H
+    "Nilai Invoice",            # J
+    "Pembayaran di",            # K
+    "Diterima Kantor Pusat/Kanwil",  # L
+    "Total Pembayaran",         # M
+    "Sisa Terbayar",            # N
+    "Keterangan Posisi",        # O
+    "TOP Internal",             # P
+    "Status_Q"                  # Q
 ]
 
 # ========== FUNGSI ==========
@@ -199,7 +199,7 @@ st.markdown("""
     color: #1a1a1a !important;
 }
 
-/* ===== TAMPILAN HP ===== */
+/* ===== HP ===== */
 @media (max-width: 768px) {
     .list-item {
         background: #ffffff;
@@ -281,9 +281,11 @@ with col_kiri:
             tanggal = row["Diterima Kantor Pusat/Kanwil"] if pd.notna(row["Diterima Kantor Pusat/Kanwil"]) else "-"
             pembayaran_di = row["Pembayaran di"] if pd.notna(row["Pembayaran di"]) else "-"
             top_internal = row["TOP Internal"] if pd.notna(row["TOP Internal"]) else "-"
+            no_io = row["No IO"] if pd.notna(row["No IO"]) else "-"
             st.markdown(f"""
             <div class="list-item">
                 <b>{row['Pelanggan']}</b><br>
+                🆔 {no_io}<br>
                 📅 {tanggal}<br>
                 📍 {pembayaran_di}<br>
                 💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}<br>
@@ -306,9 +308,11 @@ with col_kanan:
     
     if not df_tampil.empty:
         for idx, row in df_tampil.iterrows():
+            no_io = row["No IO"] if pd.notna(row["No IO"]) else "-"
             st.markdown(f"""
             <div class="list-item-orange">
                 <b>{row['Pelanggan']}</b><br>
+                🆔 {no_io}<br>
                 📍 {row['Pembayaran di']}<br>
                 💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
             </div>
