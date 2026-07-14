@@ -285,7 +285,7 @@ with col_kiri:
             st.markdown(f"""
             <div class="list-item">
                 <b>{row['Pelanggan']}</b><br>
-                🆔 {no_io}<br>
+                📋 IO: {no_io}<br>
                 📅 {tanggal}<br>
                 📍 {pembayaran_di}<br>
                 💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}<br>
@@ -312,7 +312,7 @@ with col_kanan:
             st.markdown(f"""
             <div class="list-item-orange">
                 <b>{row['Pelanggan']}</b><br>
-                🆔 {no_io}<br>
+                📋 IO: {no_io}<br>
                 📍 {row['Pembayaran di']}<br>
                 💰 Rp {row['Nilai_Invoice_Bersih']:,.0f}
             </div>
